@@ -40,6 +40,19 @@ namespace PortfolioManagerProxy.Repositories
             _context.SaveChanges();
         }
 
+        public void UpdateUser(int userId, IEnumerable<PortfolioItemModel> items)
+        {
+            foreach (var item in _context.PortfolioItems.Where(m => m.UserId == userId))
+            {
+                _context.PortfolioItems.Remove(item);
+            }
+            foreach (var item in items)
+            {
+                _context.PortfolioItems.Add(item);
+            }
+            _context.SaveChanges();
+        }
+
         private void UpdateOriginalItem(PortfolioItemModel origin, PortfolioItemModel newItem) {
             origin.SharesNumber = newItem.SharesNumber;
             origin.Symbol = newItem.Symbol;

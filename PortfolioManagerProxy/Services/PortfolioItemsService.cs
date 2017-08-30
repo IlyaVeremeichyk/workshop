@@ -86,8 +86,9 @@ namespace PortfolioManagerProxy.Services
         /// <param name="item">The portfolio item to update.</param>
         public void UpdateItem(PortfolioItemModel item)
         {
-            _httpClient.PutAsJsonAsync(_serviceApiUrl + UpdateUrl, item)
-                .Result.EnsureSuccessStatusCode();
+            _repository.UpdateItem(item);
+            //_httpClient.PutAsJsonAsync(_serviceApiUrl + UpdateUrl, item)
+            //    .Result.EnsureSuccessStatusCode();
         }
 
         /// <summary>
