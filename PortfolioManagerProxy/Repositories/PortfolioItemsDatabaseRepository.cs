@@ -1,4 +1,5 @@
 ﻿using PortfolioManagerProxy.Models;
+using PortfolioManagerProxy.Models.Comparers;
 using PortfolioManagerProxy.Models.Context;
 using System;
 using System.Collections.Generic;
@@ -47,17 +48,38 @@ namespace PortfolioManagerProxy.Repositories
 
         public void UpdateUser(int userId, IEnumerable<PortfolioItemModel> items)
         {
+            var equalityComparer = new PortfolioItemModelComparer();
+            var localItems = _context.PortfolioItems.Where(m => m.UserId == userId).ToList();
+            var receivedItems = items.ToList();
 
-            Debug.WriteLine("Updating user"  + userId+" items count "+items.Count());
+            foreach (var receivedItem in receivedItems)
+            {
+                var localItem = localItems.Where(m => m.Id == receivedItem.Id).SingleOrDefault();
 
-            foreach (var item in _context.PortfolioItems.Where(m => m.UserId == userId))
-            {
-                _context.PortfolioItems.Remove(item);
+                if (equalityComparer.GetHashCode(receivedItem) == equalityComparer.GetHashCode(localItem)
+                    && equalityComparer.Equals(receivedItem, localItem))
+                {
+                    localItems.Remove(localItem);
+                    receivedItems.Remove(receivedItem);
+                }
+                else
+                {
+                    if(localItem.ItemId == receivedItem.ItemId)
+                    {
+                        UpdateItem(receivedItem);
+                    }
+                    else
+                    {
+                        _context.PortfolioItems.Add(receivedItem);
+                    }                    
+                }
             }
-            foreach (var item in items)
+
+            foreach (var localItem in localItems)
             {
-                _context.PortfolioItems.Add(item);
+                _context.PortfolioItems.Remove(localItem);
             }
+
             _context.SaveChanges();
         }
 
