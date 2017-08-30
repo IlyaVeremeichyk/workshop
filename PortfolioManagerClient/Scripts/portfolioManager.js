@@ -7,7 +7,7 @@
         var tr = $("<tr data-id='" + obj.ItemId + "'></tr>");
         tr.append("<td class='name' >" + obj.Symbol + "</td>");
         tr.append("<td class='name' >" + obj.SharesNumber + "</td>");
-        tr.append("<td><input type='button' class='update-button' value='Update' /><input type='button' class='delete-button' value='Delete' /></td>");
+        tr.append("<td><button class='update-button btn btn-warning btn-sm'>Update</button><td><button class='delete-button btn btn-danger btn-sm'>Delete</button>");
         $(parentSelector).append(tr);
     }
 
