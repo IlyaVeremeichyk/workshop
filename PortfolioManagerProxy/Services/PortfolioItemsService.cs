@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace PortfolioManagerProxy.Services
@@ -16,34 +17,11 @@ namespace PortfolioManagerProxy.Services
     /// </summary>
     public class PortfolioItemsService
     {
-        /// <summary>
-        /// The url for getting all portfolio items.
-        /// </summary>
-        private const string GetAllUrl = "PortfolioItems?userId={0}";
-
-        /// <summary>
-        /// The url for updating a portfolio item.
-        /// </summary>
-        private const string UpdateUrl = "PortfolioItems";
-
-        /// <summary>
-        /// The url for a portfolio item's creation.
-        /// </summary>
-        private const string CreateUrl = "PortfolioItems";
-
-        /// <summary>
-        /// The url for a portfolio item's deletion.
-        /// </summary>
-        private const string DeleteUrl = "PortfolioItems/{0}";
-
-        /// <summary>
-        /// The service URL.
-        /// </summary>
-        private readonly string _serviceApiUrl = ConfigurationManager.AppSettings["PortfolioManagerServiceUrl"];
-
         private readonly HttpClient _httpClient;
 
         private readonly PortfolioItemsDatabaseRepository _repository;
+
+        private readonly CloudSynchronizationRepository _cloudRepository;
 
         /// <summary>
         /// Creates the service.
@@ -51,8 +29,9 @@ namespace PortfolioManagerProxy.Services
         public PortfolioItemsService()
         {
             _httpClient = new HttpClient();
-            _repository = new PortfolioItemsDatabaseRepository();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _repository = new PortfolioItemsDatabaseRepository();
+            _cloudRepository = new CloudSynchronizationRepository();
         }
 
         /// <summary>
@@ -62,10 +41,8 @@ namespace PortfolioManagerProxy.Services
         /// <returns>The list of portfolio items.</returns>
         public IList<PortfolioItemModel> GetItems(int userId)
         {
-
-            //var dataAsString = _httpClient.GetStringAsync(string.Format(_serviceApiUrl + GetAllUrl, userId)).Result;
-            //var data = JsonConvert.DeserializeObject<IList<PortfolioItemModel>>(dataAsString);
             var data = _repository.GetItems(userId).ToList();
+            UpdateItems(userId);
             return data;
         }
 
@@ -75,8 +52,7 @@ namespace PortfolioManagerProxy.Services
         /// <param name="item">The portfolio item to create.</param>
         public void CreateItem(PortfolioItemModel item)
         {
-            //_httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item)
-            //    .Result.EnsureSuccessStatusCode();
+            _cloudRepository.CreateItem(item).ContinueWith(prev => UpdateItems(item.UserId));
             _repository.AddItem(item);
         }
 
@@ -86,9 +62,8 @@ namespace PortfolioManagerProxy.Services
         /// <param name="item">The portfolio item to update.</param>
         public void UpdateItem(PortfolioItemModel item)
         {
+            _cloudRepository.UpdateItem(item).ContinueWith(prev => UpdateItems(item.UserId));
             _repository.UpdateItem(item);
-            //_httpClient.PutAsJsonAsync(_serviceApiUrl + UpdateUrl, item)
-            //    .Result.EnsureSuccessStatusCode();
         }
 
         /// <summary>
@@ -97,9 +72,14 @@ namespace PortfolioManagerProxy.Services
         /// <param name="id">The portfolio item Id to delete.</param>
         public void DeleteItem(int id)
         {
+            var userId = _repository.GetItem(id).UserId;
+            _cloudRepository.DeleteItem(id).ContinueWith(prev => UpdateItems(userId));
             _repository.DeleteItem(id);
-            //_httpClient.DeleteAsync(string.Format(_serviceApiUrl + DeleteUrl, id))
-            //    .Result.EnsureSuccessStatusCode();
+        }
+
+        private async Task UpdateItems(int userId) {
+            await _cloudRepository.GetItems(userId)
+                .ContinueWith(prev => _repository.UpdateUser(userId, prev.Result));
         }
     }
 }

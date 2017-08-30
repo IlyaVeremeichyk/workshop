@@ -55,27 +55,30 @@ namespace PortfolioManagerProxy.Repositories
         /// </summary>
         /// <param name="userId">The User Id.</param>
         /// <returns>The list of portfolio items.</returns>
-        public async Task<IList<PortfolioItemModel>> GetItems(int userId)
+        public Task<IList<PortfolioItemModel>> GetItems(int userId)
         {
-            var dataAsString = await _httpClient.GetStringAsync(string.Format(_serviceApiUrl + GetAllUrl, userId));
-            return JsonConvert.DeserializeObject<IList<PortfolioItemModel>>(dataAsString);            
+            return Task.Run(() =>
+            {
+                var dataAsString = _httpClient.GetStringAsync(string.Format(_serviceApiUrl + GetAllUrl, userId)).Result;
+                return JsonConvert.DeserializeObject<IList<PortfolioItemModel>>(dataAsString);
+            });   
         }
 
         /// <summary>
         /// Creates a portfolio item. UserId is taken from the model.
         /// </summary>
         /// <param name="item">The portfolio item to create.</param>
-        public async void CreateItem(PortfolioItemModel item)
+        public async Task CreateItem(PortfolioItemModel item)
         {
-            (await _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item))
-                .EnsureSuccessStatusCode();
+            var a = (await _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item));
+                a.EnsureSuccessStatusCode();
         }
 
         /// <summary>
         /// Updates a portfolio item.
         /// </summary>
         /// <param name="item">The portfolio item to update.</param>
-        public async void UpdateItem(PortfolioItemModel item)
+        public async Task UpdateItem(PortfolioItemModel item)
         {
             (await _httpClient.PutAsJsonAsync(_serviceApiUrl + UpdateUrl, item))
                 .EnsureSuccessStatusCode();
@@ -85,7 +88,7 @@ namespace PortfolioManagerProxy.Repositories
         /// Deletes a portfolio item.
         /// </summary>
         /// <param name="id">The portfolio item Id to delete.</param>
-        public async void DeleteItem(int id)
+        public async Task DeleteItem(int id)
         {
             (await _httpClient.DeleteAsync(string.Format(_serviceApiUrl + DeleteUrl, id)))
                 .EnsureSuccessStatusCode();

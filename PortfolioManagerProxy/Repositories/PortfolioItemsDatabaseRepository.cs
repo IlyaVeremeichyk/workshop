@@ -2,6 +2,7 @@
 using PortfolioManagerProxy.Models.Context;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 
@@ -14,6 +15,10 @@ namespace PortfolioManagerProxy.Repositories
         public PortfolioItemsDatabaseRepository()
         {
             _context = new PortfolioManagerContext();
+        }
+
+        public PortfolioItemModel GetItem(int id) {
+            return _context.PortfolioItems.Find(id);
         }
 
         public IQueryable<PortfolioItemModel> GetItems(int userId)
@@ -42,6 +47,9 @@ namespace PortfolioManagerProxy.Repositories
 
         public void UpdateUser(int userId, IEnumerable<PortfolioItemModel> items)
         {
+
+            Debug.WriteLine("Updating user"  + userId+" items count "+items.Count());
+
             foreach (var item in _context.PortfolioItems.Where(m => m.UserId == userId))
             {
                 _context.PortfolioItems.Remove(item);
