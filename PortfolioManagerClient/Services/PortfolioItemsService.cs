@@ -75,7 +75,7 @@ namespace PortfolioManagerClient.Services
         /// <param name="item">The portfolio item to update.</param>
         public void UpdateItem(PortfolioItemViewModel item)
         {
-            _httpClient.PutAsJsonAsync(_serviceApiUrl + UpdateUrl, item)
+            _httpClient.PutAsJsonAsync(_serviceApiUrl, item)
                 .Result.EnsureSuccessStatusCode();
         }
 

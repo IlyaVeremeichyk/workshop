@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using PortfolioManagerProxy.Models;
+using PortfolioManagerProxy.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -42,12 +43,15 @@ namespace PortfolioManagerProxy.Services
 
         private readonly HttpClient _httpClient;
 
+        private readonly PortfolioItemsRepository _repository;
+
         /// <summary>
         /// Creates the service.
         /// </summary>
         public PortfolioItemsService()
         {
             _httpClient = new HttpClient();
+            _repository = new PortfolioItemsRepository();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
@@ -58,8 +62,11 @@ namespace PortfolioManagerProxy.Services
         /// <returns>The list of portfolio items.</returns>
         public IList<PortfolioItemModel> GetItems(int userId)
         {
-            var dataAsString = _httpClient.GetStringAsync(string.Format(_serviceApiUrl + GetAllUrl, userId)).Result;
-            return JsonConvert.DeserializeObject<IList<PortfolioItemModel>>(dataAsString);
+
+            //var dataAsString = _httpClient.GetStringAsync(string.Format(_serviceApiUrl + GetAllUrl, userId)).Result;
+            //var data = JsonConvert.DeserializeObject<IList<PortfolioItemModel>>(dataAsString);
+            var data = _repository.GetItems(userId).ToList();
+            return data;
         }
 
         /// <summary>
@@ -68,8 +75,9 @@ namespace PortfolioManagerProxy.Services
         /// <param name="item">The portfolio item to create.</param>
         public void CreateItem(PortfolioItemModel item)
         {
-            _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item)
-                .Result.EnsureSuccessStatusCode();
+            //_httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item)
+            //    .Result.EnsureSuccessStatusCode();
+            _repository.AddItem(item);
         }
 
         /// <summary>
