@@ -39,7 +39,7 @@ namespace PortfolioManagerProxy.Repositories
         private readonly string _serviceApiUrl = ConfigurationManager.AppSettings["PortfolioManagerServiceUrl"];
 
         private readonly HttpClient _httpClient;
-        
+
 
         /// <summary>
         /// Creates the service.
@@ -61,7 +61,7 @@ namespace PortfolioManagerProxy.Repositories
             {
                 var dataAsString = _httpClient.GetStringAsync(string.Format(_serviceApiUrl + GetAllUrl, userId)).Result;
                 return JsonConvert.DeserializeObject<IList<PortfolioItemModel>>(dataAsString);
-            });   
+            });
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace PortfolioManagerProxy.Repositories
         /// <param name="item">The portfolio item to create.</param>
         public async Task CreateItem(PortfolioItemModel item)
         {
-            (await _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item))
+            (await CreateItemTry(item, 3))
                 .EnsureSuccessStatusCode();
         }
 
@@ -92,6 +92,16 @@ namespace PortfolioManagerProxy.Repositories
         {
             (await _httpClient.DeleteAsync(string.Format(_serviceApiUrl + DeleteUrl, id)))
                 .EnsureSuccessStatusCode();
+        }
+
+        private async Task<HttpResponseMessage> CreateItemTry(PortfolioItemModel item, int triesRemaining)
+        {
+            if (triesRemaining < 0)
+            {
+                throw new ApplicationException("Too many tries creating item");
+            }
+
+            return await _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item).ContinueWith(prev => { return CreateItemTry(item, triesRemaining - 1).Result; }, TaskContinuationOptions.OnlyOnFaulted);
         }
     }
 }

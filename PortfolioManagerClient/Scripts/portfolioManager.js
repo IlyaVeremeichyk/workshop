@@ -95,6 +95,7 @@ $(function () {
         portfolioManager.createItem(symbol, sharesNumber)
             .then(portfolioManager.loadItems)
             .done(function (items) {
+                console.log(items);
                 portfolioManager.displayItems("#items > tbody", items);
                 renewUpdateTimer();
             });
@@ -136,20 +137,25 @@ $(function () {
         });
 
     var timer;
+    var userMakeChanges = false;
 
     function renewUpdateTimer() {
+        userMakeChanges = true;
         clearTimeout(timer);
         timer = setTimeout(refreshData, 10000);
     }
 
     function refreshData() {
         clearInterval(timer);
+        userMakeChanges = false;
         console.log('data start refreshed');
         portfolioManager.loadSyncItems().done(function (items) {
-            portfolioManager.displayItems("#items > tbody", items);
-            console.log('done');
-            console.log(items);
+            if (!userMakeChanges) {
+                portfolioManager.displayItems("#items > tbody", items);
+                console.log('done');
+            }
             renewUpdateTimer();
+
         });
     }
 });
