@@ -1,9 +1,9 @@
-﻿var portfolioManager = function() {
+﻿var portfolioManager = function () {
 
     // appends a row to the portfolio items table.
     // @parentSelector: selector to append a row to.
     // @obj: portfolio item object to append.
-    var appendRow = function(parentSelector, obj) {
+    var appendRow = function (parentSelector, obj) {
         var tr = $("<tr data-id='" + obj.ItemId + "'></tr>");
         tr.append("<td class='name' >" + obj.Symbol + "</td>");
         tr.append("<td class='name' >" + obj.SharesNumber + "</td>");
@@ -14,7 +14,7 @@
     // adds all portfolio items as rows (deletes all rows before).
     // @parentSelector: selector to append a row to.
     // @tasks: array of portfolio items to append.
-    var displayPortfolioItems = function(parentSelector, portfolioItems) {
+    var displayPortfolioItems = function (parentSelector, portfolioItems) {
         $(parentSelector).empty();
         $.each(portfolioItems, function (i, item) {
             appendRow(parentSelector, item);
@@ -23,20 +23,26 @@
 
     // starts loading portfolio items from server.
     // @returns a promise.
-    var loadPortfolioItems = function() {
+    var loadPortfolioItems = function () {
         return $.getJSON("/api/portfolioitems");
+    };
+
+    // starts loading actual portfolio items from server.
+    // @returns a promise.
+    var loadSynchronizedPortfolioItems = function () {
+        return $.getJSON("/api/portfolioitems/GetSynchronizedData");
     };
 
     // starts creating a portfolio item on the server.
     // @symbol: symbol name.
     // @sharesNumber: number of shares.
     // @return a promise.
-    var createPortfolio = function(symbol, sharesNumber) {
+    var createPortfolio = function (symbol, sharesNumber) {
         return $.post("/api/portfolioitems",
-        {
-            Symbol: symbol,
-            SharesNumber: sharesNumber
-        });
+            {
+                Symbol: symbol,
+                SharesNumber: sharesNumber
+            });
     };
 
     // starts updating a portfolio item on the server.
@@ -44,18 +50,18 @@
     // @symbol: symbol name.
     // @sharesNumber: number of shares.
     // @return a promise.
-    var updatePortfolioItem = function(id, symbol, sharesNumber) {
+    var updatePortfolioItem = function (id, symbol, sharesNumber) {
         return $.ajax(
-        {
-            url: "/api/portfolioitems",
-            type: "PUT",
-            contentType: 'application/json',
-            data: JSON.stringify({
-                ItemId: id,
-                Symbol: symbol,
-                SharesNumber: sharesNumber
-            })
-        });
+            {
+                url: "/api/portfolioitems",
+                type: "PUT",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    ItemId: id,
+                    Symbol: symbol,
+                    SharesNumber: sharesNumber
+                })
+            });
     };
 
     // starts deleting a portfolio item on the server.
@@ -71,6 +77,7 @@
     // returns public interface of portfolio manager.
     return {
         loadItems: loadPortfolioItems,
+        loadSyncItems: loadSynchronizedPortfolioItems,
         displayItems: displayPortfolioItems,
         createItem: createPortfolio,
         deleteItem: deletePortfolioItem,
@@ -81,14 +88,15 @@
 
 $(function () {
     // add new portfolio item button click handler
-    $("#newCreate").click(function() {
+    $("#newCreate").click(function () {
         var symbol = $('#symbol')[0].value;
         var sharesNumber = $('#sharesNumber')[0].value;
 
         portfolioManager.createItem(symbol, sharesNumber)
             .then(portfolioManager.loadItems)
-            .done(function(items) {
+            .done(function (items) {
                 portfolioManager.displayItems("#items > tbody", items);
+                renewUpdateTimer();
             });
     });
 
@@ -100,27 +108,48 @@ $(function () {
         var sharesNumber = $('#sharesNumber')[0].value;
         //var symbol = tr.find('.symbol').text();
         //var sharesNumber = tr.find('.sharesNumber').text();
-        
+
         portfolioManager.updateItem(itemId, symbol, sharesNumber)
             .then(portfolioManager.loadItems)
             .done(function (items) {
                 portfolioManager.displayItems("#items > tbody", items);
+                renewUpdateTimer();
             });
     });
 
     // bind delete button click for future rows
-    $('#items > tbody').on('click', '.delete-button', function() {
+    $('#items > tbody').on('click', '.delete-button', function () {
         var itemId = $(this).parent().parent().attr("data-id");
         portfolioManager.deleteItem(itemId)
             .then(portfolioManager.loadItems)
-            .done(function(items) {
+            .done(function (items) {
                 portfolioManager.displayItems("#items > tbody", items);
+                renewUpdateTimer();
             });
     });
 
     // load all items on startup
     portfolioManager.loadItems()
-        .done(function(items) {
+        .done(function (items) {
             portfolioManager.displayItems("#items > tbody", items);
+            refreshData();
         });
+
+    var timer;
+
+    function renewUpdateTimer() {
+        clearTimeout(timer);
+        timer = setTimeout(refreshData, 10000);
+    }
+
+    function refreshData() {
+        clearInterval(timer);
+        console.log('data start refreshed');
+        portfolioManager.loadSyncItems().done(function (items) {
+            portfolioManager.displayItems("#items > tbody", items);
+            console.log('done');
+            console.log(items);
+            renewUpdateTimer();
+        });
+    }
 });

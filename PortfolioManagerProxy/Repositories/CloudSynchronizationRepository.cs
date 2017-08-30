@@ -70,8 +70,8 @@ namespace PortfolioManagerProxy.Repositories
         /// <param name="item">The portfolio item to create.</param>
         public async Task CreateItem(PortfolioItemModel item)
         {
-            var a = (await _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item));
-                a.EnsureSuccessStatusCode();
+            (await _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item))
+                .EnsureSuccessStatusCode();
         }
 
         /// <summary>

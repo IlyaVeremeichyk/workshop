@@ -33,7 +33,7 @@ namespace PortfolioManagerProxy.Services
             _repository = new PortfolioItemsDatabaseRepository();
             _cloudRepository = new CloudSynchronizationRepository();
         }
-
+        
         /// <summary>
         /// Gets all portfolio items for the user.
         /// </summary>
@@ -42,7 +42,6 @@ namespace PortfolioManagerProxy.Services
         public IList<PortfolioItemModel> GetItems(int userId)
         {
             var data = _repository.GetItems(userId).ToList();
-            UpdateItems(userId);
             return data;
         }
 
@@ -52,7 +51,7 @@ namespace PortfolioManagerProxy.Services
         /// <param name="item">The portfolio item to create.</param>
         public void CreateItem(PortfolioItemModel item)
         {
-            _cloudRepository.CreateItem(item).ContinueWith(prev => UpdateItems(item.UserId));
+            _cloudRepository.CreateItem(item);//.ContinueWith(prev => UpdateItems(item.UserId));
             _repository.AddItem(item);
         }
 
@@ -62,7 +61,7 @@ namespace PortfolioManagerProxy.Services
         /// <param name="item">The portfolio item to update.</param>
         public void UpdateItem(PortfolioItemModel item)
         {
-            _cloudRepository.UpdateItem(item).ContinueWith(prev => UpdateItems(item.UserId));
+            _cloudRepository.UpdateItem(item);//.ContinueWith(prev => UpdateItems(item.UserId));
             _repository.UpdateItem(item);
         }
 
@@ -73,8 +72,15 @@ namespace PortfolioManagerProxy.Services
         public void DeleteItem(int id)
         {
             var userId = _repository.GetItem(id).UserId;
-            _cloudRepository.DeleteItem(id).ContinueWith(prev => UpdateItems(userId));
+            _cloudRepository.DeleteItem(id);//.ContinueWith(prev => UpdateItems(userId));
             _repository.DeleteItem(id);
+        }
+
+        public IList<PortfolioItemModel> GetSynchronizedItems(int userId)
+        {
+            var data = _cloudRepository.GetItems(userId).Result;
+            _repository.UpdateUser(userId, data);
+            return data;
         }
 
         private async Task UpdateItems(int userId) {

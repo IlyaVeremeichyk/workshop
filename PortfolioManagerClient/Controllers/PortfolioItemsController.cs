@@ -51,5 +51,12 @@ namespace PortfolioManagerClient.Controllers
             portfolioItem.UserId = _usersService.GetOrCreateUser();
             _portfolioItemsService.CreateItem(portfolioItem);
         }
+
+        [Route("api/portfolioitems/GetSynchronizedData")]
+        public IEnumerable<PortfolioItemViewModel> GetSynchronizedData()
+        {
+            var userId = _usersService.GetOrCreateUser();
+            return this._portfolioItemsService.GetSynchronizedItems(userId);
+        }
     }
 }

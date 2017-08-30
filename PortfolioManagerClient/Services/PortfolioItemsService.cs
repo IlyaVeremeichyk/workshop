@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -15,22 +16,8 @@ namespace PortfolioManagerClient.Services
         /// <summary>
         /// The url for getting all portfolio items.
         /// </summary>
-        private const string GetAllUrl = "PortfolioItems?userId={0}";
-
-        /// <summary>
-        /// The url for updating a portfolio item.
-        /// </summary>
-        private const string UpdateUrl = "PortfolioItems";
-
-        /// <summary>
-        /// The url for a portfolio item's creation.
-        /// </summary>
-        private const string CreateUrl = "PortfolioItems";
-
-        /// <summary>
-        /// The url for a portfolio item's deletion.
-        /// </summary>
-        private const string DeleteUrl = "PortfolioItems/{0}";
+        private const string GetSynchronizedUrl = "GetSynchronizedData/";
+        
 
         /// <summary>
         /// The service URL.
@@ -56,6 +43,12 @@ namespace PortfolioManagerClient.Services
         public IList<PortfolioItemViewModel> GetItems(int userId)
         {
             var dataAsString = _httpClient.GetStringAsync(_serviceApiUrl + userId).Result;
+            return JsonConvert.DeserializeObject<IList<PortfolioItemViewModel>>(dataAsString);
+        }
+
+        public IEnumerable<PortfolioItemViewModel> GetSynchronizedItems(int userId)
+        {
+            var dataAsString = _httpClient.GetStringAsync(_serviceApiUrl + GetSynchronizedUrl + userId).Result;
             return JsonConvert.DeserializeObject<IList<PortfolioItemViewModel>>(dataAsString);
         }
 
