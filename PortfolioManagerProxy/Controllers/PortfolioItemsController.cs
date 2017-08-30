@@ -26,13 +26,15 @@ namespace PortfolioManagerProxy.Controllers
         }
 
         // PUT api/values/5
-        public void Put(int id, [FromBody]string value)
+        public void Put([FromBody]PortfolioItemModel value)
         {
+            this._portfolioItemsService.UpdateItem(value);
         }
 
         // DELETE api/values/5
         public void Delete(int id)
         {
+            this._portfolioItemsService.DeleteItem(id);
         }
     }
 }

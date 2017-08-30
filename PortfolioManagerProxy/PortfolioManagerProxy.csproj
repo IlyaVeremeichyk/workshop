@@ -154,14 +154,17 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\PortfolioItemsController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Context\PortfolioManagerContext.cs" />
     <Compile Include="Models\PortfolioItemModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\PortfolioItemsRepository.cs" />
+    <Compile Include="Repositories\CloudSynchronizationRepository.cs" />
+    <Compile Include="Repositories\PortfolioItemsDatabaseRepository.cs" />
     <Compile Include="Services\PortfolioItemsService.cs" />
+    <Compile Include="Services\UserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />

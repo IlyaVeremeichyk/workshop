@@ -19,7 +19,7 @@ namespace PortfolioManagerClient.Services
         /// <summary>
         /// The service URL.
         /// </summary>
-        private readonly string _serviceApiUrl = ConfigurationManager.AppSettings["PortfolioManagerServiceUrl"];
+        private readonly string _serviceApiUrl = ConfigurationManager.AppSettings["PortfolioManagerServiceUrl"] + "Users/";
 
         private readonly HttpClient _httpClient;
 
@@ -39,7 +39,7 @@ namespace PortfolioManagerClient.Services
         /// <returns>The User Id.</returns>
         public int CreateUser(string userName)
         {
-            var response = _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, userName).Result;
+            var response = _httpClient.PostAsJsonAsync(_serviceApiUrl, userName).Result;
             response.EnsureSuccessStatusCode();
             return response.Content.ReadAsAsync<int>().Result;
         }

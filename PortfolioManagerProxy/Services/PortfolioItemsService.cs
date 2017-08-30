@@ -43,7 +43,7 @@ namespace PortfolioManagerProxy.Services
 
         private readonly HttpClient _httpClient;
 
-        private readonly PortfolioItemsRepository _repository;
+        private readonly PortfolioItemsDatabaseRepository _repository;
 
         /// <summary>
         /// Creates the service.
@@ -51,7 +51,7 @@ namespace PortfolioManagerProxy.Services
         public PortfolioItemsService()
         {
             _httpClient = new HttpClient();
-            _repository = new PortfolioItemsRepository();
+            _repository = new PortfolioItemsDatabaseRepository();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
@@ -96,8 +96,9 @@ namespace PortfolioManagerProxy.Services
         /// <param name="id">The portfolio item Id to delete.</param>
         public void DeleteItem(int id)
         {
-            _httpClient.DeleteAsync(string.Format(_serviceApiUrl + DeleteUrl, id))
-                .Result.EnsureSuccessStatusCode();
+            _repository.DeleteItem(id);
+            //_httpClient.DeleteAsync(string.Format(_serviceApiUrl + DeleteUrl, id))
+            //    .Result.EnsureSuccessStatusCode();
         }
     }
 }

@@ -35,7 +35,7 @@ namespace PortfolioManagerClient.Services
         /// <summary>
         /// The service URL.
         /// </summary>
-        private readonly string _serviceApiUrl = ConfigurationManager.AppSettings["PortfolioManagerServiceUrl"];
+        private readonly string _serviceApiUrl = ConfigurationManager.AppSettings["PortfolioManagerServiceUrl"] + "PortfolioItems/";
 
         private readonly HttpClient _httpClient;
 
@@ -85,7 +85,7 @@ namespace PortfolioManagerClient.Services
         /// <param name="id">The portfolio item Id to delete.</param>
         public void DeleteItem(int id)
         {
-            _httpClient.DeleteAsync(string.Format(_serviceApiUrl + DeleteUrl, id))
+            _httpClient.DeleteAsync(_serviceApiUrl+id)
                 .Result.EnsureSuccessStatusCode();
         }
     }
