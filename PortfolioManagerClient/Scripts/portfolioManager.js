@@ -13,11 +13,11 @@
     // @obj: portfolio item object to append.
     var appendRow = function (parentSelector, obj) {
         var tr = $("<tr data-id='" + obj.ItemId + "'></tr>");
-        tr.append("<td class='name' >" + obj.Symbol + "</td>");
+        tr.append("<td class='name' style='cursor:pointer'>" + obj.Symbol + "</td>");
         tr.append("<td class='number' >" + obj.SharesNumber + "</td>");
         tr.append("<td><button class='update-button btn btn-warning btn-sm'>Update</button><td><span class='delete-button glyphicon glyphicon-trash btn'></button>");
         tr.append("<td>" + Math.round10(obj.TodayPrice, -2) + "$</td>");
-        tr.append("<td>" + Math.round10(obj.TodayPrice*obj.SharesNumber, -2) + "$</td>");
+        tr.append("<td>" + Math.round10(obj.TodayPrice * obj.SharesNumber, -2) + "$</td>");
 
         $(parentSelector).append(tr);
     }
@@ -183,20 +183,41 @@ $(function () {
     }
 
     //TODO: finish and refactor
+
+    $('body').click(function (event) {
+        if (event.target.className != 'name') {
+            hideChart();
+        }
+    });
     $("#tableBody").click(function (event) {
         if (event.target.className == 'name') {
             showChart(event.target.innerHTML);
         }
-        else { hideChart(); }
     });
 
     function showChart(symbol) {
-        $("#chart").show();
-        $.plot($("#chart"), [[[0, 0], [1, 1]]], { yaxis: { max: 1 } });
+        $("#company-name").text(symbol);
+        $("#chart").empty();
+        $("#chart-place").show();
+        generateData(symbol);
+    }
+
+    function generateData(symbol) {
+        $.getJSON('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + symbol + '&apikey=Q0KDAMVZNFQJGNFY', function (data) {
+            var data = data['Time Series (Daily)'];
+            var result = [];
+            var i = -100;
+            for (key in data) {
+                result.push([i, +data[key]['1. open']]);
+                i++;
+            };
+
+            $.plot($("#chart"), [result.reverse()]);
+        });
     }
 
     function hideChart() {
-        $("#chart").hide();
+        $("#chart-place").hide();
     }
 });
 
