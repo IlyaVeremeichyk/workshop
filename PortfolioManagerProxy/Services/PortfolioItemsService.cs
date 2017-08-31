@@ -4,6 +4,7 @@ using PortfolioManagerProxy.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -33,7 +34,7 @@ namespace PortfolioManagerProxy.Services
             _repository = new PortfolioItemsDatabaseRepository();
             _cloudRepository = new CloudSynchronizationRepository();
         }
-        
+
         /// <summary>
         /// Gets all portfolio items for the user.
         /// </summary>
@@ -51,7 +52,12 @@ namespace PortfolioManagerProxy.Services
         /// <param name="item">The portfolio item to create.</param>
         public void CreateItem(PortfolioItemModel item)
         {
-            _cloudRepository.CreateItem(item);//.ContinueWith(prev => UpdateItems(item.UserId));
+            _cloudRepository.CreateItem(item)
+                .ContinueWith(prev =>
+                {
+                    Debug.WriteLine("===>>>Create item faulted with exception\n" + prev.Exception.ToString());
+                    _repository.DeleteItem(item.ItemId);
+                }, TaskContinuationOptions.OnlyOnFaulted);
             _repository.AddItem(item);
         }
 
@@ -61,7 +67,13 @@ namespace PortfolioManagerProxy.Services
         /// <param name="item">The portfolio item to update.</param>
         public void UpdateItem(PortfolioItemModel item)
         {
-            _cloudRepository.UpdateItem(item);//.ContinueWith(prev => UpdateItems(item.UserId));
+            var oldItem = _repository.GetItem(item.ItemId);
+            _cloudRepository.UpdateItem(item)
+                .ContinueWith(prev =>
+                {
+                    Debug.WriteLine("===>>>Update item faulted with exception\n" + prev.Exception.ToString());
+                    _repository.UpdateItem(oldItem);
+                }, TaskContinuationOptions.OnlyOnFaulted);
             _repository.UpdateItem(item);
         }
 
@@ -71,21 +83,26 @@ namespace PortfolioManagerProxy.Services
         /// <param name="id">The portfolio item Id to delete.</param>
         public void DeleteItem(int id)
         {
-            var userId = _repository.GetItem(id).UserId;
-            _cloudRepository.DeleteItem(id);//.ContinueWith(prev => UpdateItems(userId));
+            var oldItem = _repository.GetItem(id);
+            _cloudRepository.DeleteItem(id)
+                .ContinueWith(prev =>
+                {
+                    Debug.WriteLine("===>>>Delete item faulted with exception\n" + prev.Exception.ToString());
+                    _repository.AddItem(oldItem);
+                }, TaskContinuationOptions.OnlyOnFaulted);
             _repository.DeleteItem(id);
         }
 
+        /// <summary>
+        /// Gets the synchronized portfolio items for the user.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>The list of synchronized portfolio items.</returns>
         public IList<PortfolioItemModel> GetSynchronizedItems(int userId)
         {
             var data = _cloudRepository.GetItems(userId).Result;
             _repository.UpdateUser(userId, data);
             return data;
-        }
-
-        private async Task UpdateItems(int userId) {
-            await _cloudRepository.GetItems(userId)
-                .ContinueWith(prev => _repository.UpdateUser(userId, prev.Result));
         }
     }
 }

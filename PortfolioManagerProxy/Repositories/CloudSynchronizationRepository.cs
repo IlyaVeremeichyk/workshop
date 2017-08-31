@@ -70,7 +70,7 @@ namespace PortfolioManagerProxy.Repositories
         /// <param name="item">The portfolio item to create.</param>
         public async Task CreateItem(PortfolioItemModel item)
         {
-            (await CreateItemTry(item, 3))
+            (await ItemActionTry(_httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item), 3))
                 .EnsureSuccessStatusCode();
         }
 
@@ -80,7 +80,7 @@ namespace PortfolioManagerProxy.Repositories
         /// <param name="item">The portfolio item to update.</param>
         public async Task UpdateItem(PortfolioItemModel item)
         {
-            (await _httpClient.PutAsJsonAsync(_serviceApiUrl + UpdateUrl, item))
+            (await ItemActionTry(_httpClient.PutAsJsonAsync(_serviceApiUrl + UpdateUrl, item), 3))
                 .EnsureSuccessStatusCode();
         }
 
@@ -90,18 +90,34 @@ namespace PortfolioManagerProxy.Repositories
         /// <param name="id">The portfolio item Id to delete.</param>
         public async Task DeleteItem(int id)
         {
-            (await _httpClient.DeleteAsync(string.Format(_serviceApiUrl + DeleteUrl, id)))
+            (await ItemActionTry(_httpClient.DeleteAsync(string.Format(_serviceApiUrl + DeleteUrl, id)), 3))
                 .EnsureSuccessStatusCode();
         }
 
-        private async Task<HttpResponseMessage> CreateItemTry(PortfolioItemModel item, int triesRemaining)
+        /// <summary>
+        /// Try to make an action a <see cref="triesRemaining"/> times.
+        /// </summary>
+        /// <param name="task">The task to try.</param>
+        /// <param name="triesRemaining">The tries remaining.</param>
+        /// <returns>Action response.</returns>
+        private async Task<HttpResponseMessage> ItemActionTry(Task<HttpResponseMessage> task, int triesRemaining)
         {
-            if (triesRemaining < 0)
+            try
             {
-                throw new ApplicationException("Too many tries creating item");
+                return await task;
             }
+            catch
+            {
+                if (triesRemaining < 0)
+                {
+                    throw;
+                }
 
-            return await _httpClient.PostAsJsonAsync(_serviceApiUrl + CreateUrl, item).ContinueWith(prev => { return CreateItemTry(item, triesRemaining - 1).Result; }, TaskContinuationOptions.OnlyOnFaulted);
+                else
+                {
+                    return await ItemActionTry(task, triesRemaining - 1);
+                }
+            }
         }
     }
 }
