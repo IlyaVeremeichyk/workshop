@@ -95,7 +95,7 @@ namespace PortfolioManagerProxy.Repositories
         }
 
         /// <summary>
-        /// Try to make an action a <see cref="triesRemaining"/> times.
+        /// Try to perform an action a <see cref="triesRemaining"/> times.
         /// </summary>
         /// <param name="task">The task to try.</param>
         /// <param name="triesRemaining">The tries remaining.</param>

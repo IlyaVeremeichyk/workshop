@@ -14,7 +14,7 @@
     var appendRow = function (parentSelector, obj) {
         var tr = $("<tr data-id='" + obj.ItemId + "'></tr>");
         tr.append("<td class='name' >" + obj.Symbol + "</td>");
-        tr.append("<td class='name' >" + obj.SharesNumber + "</td>");
+        tr.append("<td class='number' >" + obj.SharesNumber + "</td>");
         tr.append("<td><button class='update-button btn btn-warning btn-sm'>Update</button><td><span class='delete-button glyphicon glyphicon-trash btn'></button>");
         tr.append("<td>" + Math.round10(obj.TodayPrice, -2) + "$</td>");
         tr.append("<td>" + Math.round10(obj.TodayPrice*obj.SharesNumber, -2) + "$</td>");
@@ -181,7 +181,25 @@ $(function () {
 
         });
     }
+
+    //TODO: finish and refactor
+    $("#tableBody").click(function (event) {
+        if (event.target.className == 'name') {
+            showChart(event.target.innerHTML);
+        }
+        else { hideChart(); }
+    });
+
+    function showChart(symbol) {
+        $("#chart").show();
+        $.plot($("#chart"), [[[0, 0], [1, 1]]], { yaxis: { max: 1 } });
+    }
+
+    function hideChart() {
+        $("#chart").hide();
+    }
 });
+
 
 (function () {
     function decimalAdjust(type, value, exp) {
@@ -209,3 +227,4 @@ $(function () {
         };
     }
 })();
+
