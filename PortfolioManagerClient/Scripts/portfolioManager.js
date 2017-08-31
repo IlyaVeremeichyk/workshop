@@ -1,5 +1,13 @@
 ﻿var portfolioManager = function () {
+    Date.prototype.yyyymmdd = function () {
+        var mm = this.getMonth() + 1; // getMonth() is zero-based
+        var dd = this.getDate();
 
+        return [this.getFullYear(),
+        (mm > 9 ? '' : '0') + mm,
+        (dd > 9 ? '' : '0') + dd
+        ].join('-');
+    };
     // appends a row to the portfolio items table.
     // @parentSelector: selector to append a row to.
     // @obj: portfolio item object to append.
@@ -7,7 +15,10 @@
         var tr = $("<tr data-id='" + obj.ItemId + "'></tr>");
         tr.append("<td class='name' >" + obj.Symbol + "</td>");
         tr.append("<td class='name' >" + obj.SharesNumber + "</td>");
-        tr.append("<td><button class='update-button btn btn-warning btn-sm'>Update</button><td><button class='delete-button btn btn-danger btn-sm'>Delete</button>");
+        tr.append("<td><button class='update-button btn btn-warning btn-sm'>Update</button><td><span class='delete-button glyphicon glyphicon-trash btn'></button>");
+        tr.append("<td>" + Math.round10(obj.TodayPrice, -2) + "$</td>");
+        tr.append("<td>" + Math.round10(obj.TodayPrice*obj.SharesNumber, -2) + "$</td>");
+
         $(parentSelector).append(tr);
     }
 
@@ -17,7 +28,19 @@
     var displayPortfolioItems = function (parentSelector, portfolioItems) {
         $(parentSelector).empty();
         $.each(portfolioItems, function (i, item) {
-            appendRow(parentSelector, item);
+            var date = new Date();
+            date.setDate(date.getDate() - 1);
+            $.getJSON('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + item.Symbol + '&apikey=Q0KDAMVZNFQJGNFY', function (data) {
+                try {
+                    item.TodayPrice = data['Time Series (Daily)'][date.yyyymmdd()]['1. open'];
+                }
+                catch (e) {
+                    console.log("error");
+                    console.log(data);
+                    item.TodayPrice = NaN;
+                }
+                appendRow(parentSelector, item);
+            });
         });
     };
 
@@ -142,7 +165,7 @@ $(function () {
     function renewUpdateTimer() {
         userMakeChanges = true;
         clearTimeout(timer);
-        timer = setTimeout(refreshData, 10000);
+        timer = setTimeout(refreshData, 30000);
     }
 
     function refreshData() {
@@ -159,3 +182,30 @@ $(function () {
         });
     }
 });
+
+(function () {
+    function decimalAdjust(type, value, exp) {
+        if (typeof exp === 'undefined' || +exp === 0) {
+            return Math[type](value);
+        }
+        value = +value;
+        exp = +exp;
+        // Если значение не является числом, либо степень не является целым числом...
+        if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+            return "--";
+        }
+        // Сдвиг разрядов
+        value = value.toString().split('e');
+        value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+        // Обратный сдвиг
+        value = value.toString().split('e');
+        return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+    }
+
+    // Десятичное округление к ближайшему
+    if (!Math.round10) {
+        Math.round10 = function (value, exp) {
+            return decimalAdjust('round', value, exp);
+        };
+    }
+})();

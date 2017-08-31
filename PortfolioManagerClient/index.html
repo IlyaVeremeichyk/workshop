@@ -14,23 +14,29 @@
 </head>
 <body>
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-8 col-md-offset-2">
             <table id="items" class="table table-striped" style="table-layout:fixed;">
                 <thead>
                     <tr>
-                        <th>Symbol</th>
-                        <th>Number of shares</th>
-                        <th>Actions</th>
+                        <td>Symbol</td>
+                        <td>Number of shares</td>
+                        <td>Actions</td>
+                        <td></td>
+                        <td>Price</td>
+                        <td>Total</td>
                     </tr>
                     <!-- The row for creating new items. -->
                     <tr id="new">
-                        <td><input type='text' id="symbol" /></td>
-                        <td><input type='text' id="sharesNumber" /></td>
+                        <td><input type='text' id="symbol" class="col-md-12 form-control"/></td>
+                        <td><input type='text' id="sharesNumber" class="col-md-12 form-control"/></td>
                         <td>
                             <button class="btn btn-success btn-sm" id="newCreate">
                                 <span class="glyphicon glyphicon-plus">Create</span>
                             </button>
                         </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 </thead>
                 <tbody></tbody>
