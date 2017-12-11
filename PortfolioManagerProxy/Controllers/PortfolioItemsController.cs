@@ -6,37 +6,34 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace PortfolioManagerProxy.Controllers
 {
+    [EnableCors("*", "*", "*")]
     public class PortfolioItemsController : ApiController
     {
-        private readonly PortfolioItemsService _portfolioItemsService = new PortfolioItemsService();
+        private readonly SharesService _sharesService = new SharesService();
      
-        public IEnumerable<PortfolioItemModel> Get(int id)
+        public IEnumerable<Share> Get(int userId)
         {
-            return this._portfolioItemsService.GetItems(id);
+            return _sharesService.GetItems(userId);
         }
         
-        public void Post([FromBody]PortfolioItemModel item)
+        //public void Post([FromBody]Share item)
+        //{
+        //    this._sharesService.CreateItem(item);
+        //}
+
+        [HttpPost]
+        public void SetUserShare(int userId, string isin, int count)
         {
-            this._portfolioItemsService.CreateItem(item);
-        }
-        
-        public void Put([FromBody]PortfolioItemModel value)
-        {
-            this._portfolioItemsService.UpdateItem(value);
-        }
-        
-        public void Delete(int id)
-        {
-            this._portfolioItemsService.DeleteItem(id);
+            _sharesService.SetUserShare(userId, isin, count);
         }
 
-        [Route("api/portfolioitems/GetSynchronizedData/{id}")]
-        public IEnumerable<PortfolioItemModel> GetSynchronizedData(int id)
-        {
-            return this._portfolioItemsService.GetSynchronizedItems(id);
-        }
+        //public void Delete(int id)
+        //{
+        //    this._sharesService.DeleteItem(id);
+        //}
     }
 }

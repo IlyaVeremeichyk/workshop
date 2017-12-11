@@ -1,10 +1,6 @@
 ﻿using PortfolioManagerProxy.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
+using PortfolioManagerProxy.Models;
 
 namespace PortfolioManagerProxy.Controllers
 {
@@ -17,9 +13,17 @@ namespace PortfolioManagerProxy.Controllers
             _userService = new UserService();
         }
 
-        public int Post([FromBody]string userName)
+        //{
+        //    FirstName :"John",
+        //    SecondName: "Black",
+        //    Patronymic:"Mc",
+        //    BirthDate: "11/12/1981",
+        //    Profession: "Driver"
+        //}
+        public IHttpActionResult Post([FromBody]User user)
         {
-            return this._userService.CreateUser(userName);
+            _userService.CreateUser(user);
+            return Ok();
         }
 
     }

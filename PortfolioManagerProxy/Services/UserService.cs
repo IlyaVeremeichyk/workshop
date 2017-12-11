@@ -5,27 +5,22 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
+using PortfolioManagerProxy.Models;
+using PortfolioManagerProxy.Repositories;
 
 namespace PortfolioManagerProxy.Services
 {
     public class UserService
     {
-        private readonly string _serviceApiUrl = ConfigurationManager.AppSettings["PortfolioManagerServiceUrl"] + "Users";
-
-        private readonly HttpClient _httpClient;
-
+        private readonly UsersRepository _usersRepository;
         public UserService()
         {
-            _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _usersRepository = new UsersRepository();
         }
 
-        public int CreateUser(string userName)
+        public void CreateUser(User user)
         {
-            var response = _httpClient.PostAsJsonAsync(_serviceApiUrl, userName).Result;
-            response.EnsureSuccessStatusCode();
-            var result = response.Content.ReadAsAsync<int>().Result;
-            return result;
+            _usersRepository.Create(user);
         }
     }
 }

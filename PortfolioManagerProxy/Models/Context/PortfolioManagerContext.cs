@@ -13,5 +13,11 @@ namespace PortfolioManagerProxy.Models.Context
         { }
 
         public DbSet<PortfolioItemModel> PortfolioItems { get; set; }
+
+        public DbSet<Share> Shares { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<SharesHistoricalPrice> SharesHistoricalPrices { get; set; }
+        public DbSet<UsersPortfolio> UsersPortfolios { get; set; }
+        public DbSet<UsersSharesTransaction> UsersSharesTransactions { get; set; }
     }
 }

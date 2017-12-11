@@ -21,7 +21,7 @@
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
-    <IISExpressUseClassicPipelineMode />
+    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -58,11 +58,17 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Cors, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Cors.5.2.3\lib\net45\System.Web.Cors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Http.Cors, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Cors.5.2.3\lib\net45\System.Web.Http.Cors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
@@ -158,13 +164,28 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201708301943561_InitialCreate.cs" />
+    <Compile Include="Migrations\201708301943561_InitialCreate.Designer.cs">
+      <DependentUpon>201708301943561_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201712111238097_asd.cs" />
+    <Compile Include="Migrations\201712111238097_asd.Designer.cs">
+      <DependentUpon>201712111238097_asd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Comparers\PortfolioItemModelComparer.cs" />
     <Compile Include="Models\Context\PortfolioManagerContext.cs" />
     <Compile Include="Models\PortfolioItemModel.cs" />
+    <Compile Include="Models\Share.cs" />
+    <Compile Include="Models\SharesHistoricalPrice.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UsersPortfolio.cs" />
+    <Compile Include="Models\UsersSharesTransaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\CloudSynchronizationRepository.cs" />
-    <Compile Include="Repositories\PortfolioItemsDatabaseRepository.cs" />
-    <Compile Include="Services\PortfolioItemsService.cs" />
+    <Compile Include="Repositories\SharesRepository.cs" />
+    <Compile Include="Repositories\UsersPortfolioRepository.cs" />
+    <Compile Include="Repositories\UsersRepository.cs" />
+    <Compile Include="Services\SharesService.cs" />
     <Compile Include="Services\UserService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +207,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201708301943561_InitialCreate.resx">
+      <DependentUpon>201708301943561_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201712111238097_asd.resx">
+      <DependentUpon>201712111238097_asd.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

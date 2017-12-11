@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortfolioManagerClient", "PortfolioManagerClient\PortfolioManagerClient.csproj", "{DCF98A24-6871-43D7-BAB1-0D00B7A59A01}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortfolioManagerProxy", "PortfolioManagerProxy\PortfolioManagerProxy.csproj", "{568BDA3F-E06F-4EC4-94DA-8B29F377CA02}"
 EndProject
 Global
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DCF98A24-6871-43D7-BAB1-0D00B7A59A01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DCF98A24-6871-43D7-BAB1-0D00B7A59A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DCF98A24-6871-43D7-BAB1-0D00B7A59A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DCF98A24-6871-43D7-BAB1-0D00B7A59A01}.Release|Any CPU.Build.0 = Release|Any CPU
 		{568BDA3F-E06F-4EC4-94DA-8B29F377CA02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{568BDA3F-E06F-4EC4-94DA-8B29F377CA02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{568BDA3F-E06F-4EC4-94DA-8B29F377CA02}.Release|Any CPU.ActiveCfg = Release|Any CPU
